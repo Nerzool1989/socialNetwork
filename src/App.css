@@ -11,15 +11,20 @@
 
 .App__header {
   grid-area: App__header;
+  border: 1px solid black;
 }
 .App__nav {
   grid-area: App__nav;
+  border: 1px solid black;
 }
 .App__content{
   grid-area: App__content;
+  border: 1px solid black;
+  padding: 10px;
 }
 .App__footer{
   grid-area: App__footer;
+  border: 1px solid black;
 }
 
 
