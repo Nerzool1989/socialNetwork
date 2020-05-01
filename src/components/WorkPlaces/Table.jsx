@@ -9,46 +9,61 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
+
 import CustomizedDialogs from './Dialog';
 
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+
+
 const workplaces1 = [
-  {id: 1439, type: 'WINDOW', name: 111, description: 'first', deviceId: null, enabled: true,
+  {id: 1439, type: 'WINDOW', name: 111, description: 'firstas askldjfl ajsdlj lka ljflasjd fajsl fj sadfsadfsd a s a sasads fas fas',
+   deviceId: null, enabled: true,
   autocallEnabled: true},
   {id: 2222, type: 'WINDOW', name: 222, description: 'second', deviceId: null, enabled: true,
   autocallEnabled: true}
 ]
 
+const menuOperations = ['nam1', 'nam2', 'nam3','nam1', 'nam2', 'nam3','nam1', 'nam2', 'nam3','nam1', 'nam2', 'nam3'];
+
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
   },
+  tableDescription: {
+    maxWidth: 300,
+  }
 });
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
 
 export default function SimpleTable() {
   const classes = useStyles();
 
   //данные по рабочим местам
-  const [workplaces, changeWorkplaces] = useState(workplaces1);  
+  const [workplaces, setWorkplaces] = useState(workplaces1);  
   //модальное окно
   const [openModal, setOpenModal] = React.useState(false);
   //управление данными модального окна
   const [modalData, setModalData] = React.useState({});
 
+  //управление Menu
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+//ошбки полей
+  const [error, setError] = useState({
+    description: {error: false},
+
+  })  
+
   //вообще логики слишком много, надо бы обертку сделать
   const handleModalData = (modalData) => (e) => {
-    console.log(modalData);
     const name = e.target.name;
     switch(name){
       case 'enabled':
@@ -57,6 +72,14 @@ export default function SimpleTable() {
       break;
       case 'type':
       case 'description':
+        if(e.target.value.length > 64){
+          setError({...error, description: {error: true, helperText:'слишком много символов'} })
+        } else if(e.target.value.length <=64 && error.description.error !== false){
+          console.log('check');
+          setError({ ...error, description: {error: false, helperText:''} })
+        }
+        setModalData({...modalData, [e.target.name]: e.target.value})
+        break; 
       case 'deviceId':
       case 'name':
         setModalData({...modalData, [e.target.name]: e.target.value}) 
@@ -66,12 +89,17 @@ export default function SimpleTable() {
     }
   }
 
+  const handleDelete = (id) => (e) => {
+    const newWorkplaces = workplaces.filter((place)=>place.id !== id);
+    setWorkplaces(newWorkplaces);
+  }
+
  const handleClickOpenModal = (id) => (e)=> {
   if(id === 'new') {
    const newData = {
-    id: 1, 
+    id: "", 
     type: 'WINDOW', 
-    name: 111, 
+    name: '', 
     description: 'empty', 
     deviceId: '', 
     enabled: true,
@@ -94,11 +122,12 @@ export default function SimpleTable() {
           <TableRow>
             <TableCell align="center">ID</TableCell>
             <TableCell align="center">Номер</TableCell>
-            <TableCell align="center">Описание</TableCell>
+            <TableCell align="center" className={classes.tableDescription}>Описание</TableCell>
             <TableCell align="center">Тип</TableCell>
             <TableCell align="center">Device ID</TableCell>
             <TableCell align="center">Включено</TableCell>
             <TableCell align="center">Автовызов</TableCell>
+            <TableCell align='center'>Операции</TableCell>
             <TableCell align="center">Редактировать</TableCell>
             <TableCell align="center">Удалить</TableCell>
           </TableRow>
@@ -131,13 +160,33 @@ export default function SimpleTable() {
                 inputProps={{ 'aria-label': 'checkbox with default color' }}
                 />
                 </TableCell>
+              <TableCell align='center'>
+                <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+                    Посмотреть
+                  </Button>
+                  <Menu
+                    id="simple-menu"
+                    anchorEl={anchorEl}
+                    keepMounted
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                    PaperProps={{
+                      style: {
+                        maxHeight: 500,
+                        width: 200,
+                      },
+                    }}
+                  >
+                    {menuOperations.map((operation)=><MenuItem>{operation}</MenuItem>)}
+                  </Menu>
+              </TableCell>
               <TableCell align="center">
                 <Button variant="outlined" color="primary" onClick={handleClickOpenModal(data.id)}>
                   Настройка
                 </Button>
               </TableCell>
               <TableCell align="center">
-                <Button>Удалить</Button>
+                <Button onClick={handleDelete(data.id)} >Удалить</Button>
               </TableCell>
             </TableRow>
           ))}
@@ -146,8 +195,9 @@ export default function SimpleTable() {
       <Button variant="outlined" color="primary" onClick={handleClickOpenModal('new')}>
         Новое рабочее место
       </Button>
-      <CustomizedDialogs open={openModal} setOpen={setOpenModal}
-       modalData={modalData} workplaces={workplaces} handleModalData={handleModalData}/>
+      <CustomizedDialogs error={error} open={openModal} setOpen={setOpenModal}
+       modalData={modalData} workplaces={workplaces} handleModalData={handleModalData}
+       />
     </TableContainer>
   );
 }

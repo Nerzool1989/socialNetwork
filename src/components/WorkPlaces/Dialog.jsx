@@ -71,18 +71,27 @@ const useStyles = makeStyles((theme) => ({
   },
   need: {
     height: 900
+  },
+  textfieldName:{
+    minWidth: 150,
   }
 }));
 
 function CustomizedDialogs(props) {
   const classes = useStyles();
 
-  const {modalData, setOpen, open, workplaces} = props;
+  const {modalData, error, setOpen, open, workplaces} = props;
   const {handleModalData} = props;
 
   const handleClose = () => {
     props.setOpen(false);
   };
+
+  //for TextField
+  const inputProps = {
+    min: 0,
+    max: 100
+  }
 
   return (
     <div>
@@ -98,12 +107,19 @@ function CustomizedDialogs(props) {
           Настройка рабочего места
         </DialogTitle>
         <DialogContent dividers>
-        <TextField id="outlined-basic" 
-        label="Номер окна"
-        name = 'name'
-        onChange = {handleModalData(modalData)} 
-        value={modalData.name} 
-        variant="outlined" />
+
+        <TextField id="outlined-basic"
+          // error
+          // helperText='слишком'
+          className={classes.textfieldName}
+          inputProps={inputProps}
+          type='number'
+          label="Номер окна"
+          name = 'name'
+          onChange = {handleModalData(modalData)} 
+          value={modalData.name} 
+          variant="outlined" />
+
         <FormControl variant="outlined" className={classes.formControl}>
           <InputLabel id="demo-simple-select-outlined-label">Тип</InputLabel>
           <Select
@@ -119,10 +135,10 @@ function CustomizedDialogs(props) {
           </Select>
         </FormControl>
         <TextField id="outlined-basic" label="Device Id" 
-        name = 'deviceId'
-        onClick = {handleModalData(modalData)}
-        value={modalData.deviceId} 
-        variant="outlined" />
+          name = 'deviceId'
+          onClick = {handleModalData(modalData)}
+          value={modalData.deviceId} 
+          variant="outlined" />
         <FormControlLabel
         labelPlacement='top'
           control={<Checkbox
@@ -146,21 +162,25 @@ function CustomizedDialogs(props) {
                 label='Автовызов'
         />
         <TextField id="outlined-basic"
-        disabled 
-        label="ID"
-        value={modalData.id} 
-        variant="outlined" />
-        <TextField id="outlined-basic" label="Описание" 
+          disabled 
+          label="ID"
+          value={modalData.id} 
+          variant="outlined" />
+
+        <TextField 
+        id="outlined-basic" label="Описание"
+        {...error.description}
         name ='description' 
         onChange = {handleModalData(modalData)}
         value={modalData.description} 
         variant="outlined"
-          fullWidth />
+        fullWidth />
+
         <div className={classes.need}>asdf</div>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">
-            Save changes
+            Сохранить
           </Button>
         </DialogActions>
       </Dialog>
